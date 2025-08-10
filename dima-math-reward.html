@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🎯 Дима — Герой Математики!</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 30px;
+    background: url('https://wallpapercave.com/wp/wp6119818.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+  }
+  h1 { color: #ffeb3b; text-shadow: 2px 2px 4px #000; }
+  #question { font-size: 36px; margin: 20px 0; font-weight: bold; transition: transform 0.3s ease; }
+  input { font-size: 22px; padding: 5px; width: 120px; text-align: center; }
+  button {
+    font-size: 20px;
+    padding: 8px 20px;
+    margin-top: 10px;
+    border-radius: 8px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover { background: #45a049; }
+  #score, #timer, #level { font-size: 22px; margin: 10px 0; text-shadow: 1px 1px 3px #000; }
+  .correct { color: #00ff00; font-weight: bold; animation: pop 0.3s; }
+  .wrong { color: #ff4d4d; font-weight: bold; animation: shake 0.4s; }
+  @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  #reward { margin-top: 20px; }
+  #reward img { width: 300px; border-radius: 10px; border: 3px solid #fff; }
+</style>
+</head>
+<body>
+
+<h1>💪 Дима — Герой Математики!</h1>
+
+<div id="level">Уровень: <span id="levelNum">1</span></div>
+<div id="score">Очки: 0</div>
+<div id="timer">⏳ Время: 30 сек</div>
+
+<div id="question"></div>
+<input type="number" id="answer" placeholder="Ответ">
+<br>
+<button onclick="checkAnswer()">Проверить</button>
+<div id="feedback"></div>
+<div id="reward"></div>
+
+<audio id="sound-correct" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+<audio id="sound-wrong" src="https://www.soundjay.com/button/beep-05.wav"></audio>
+
+<script>
+let score = 0;
+let a, b;
+let timeLeft = 30;
+let level = 1;
+let timer;
+
+const praises = [
+    "Отлично, Дима! Ты супер!",
+    "Вот это да! Молодец!",
+    "Ты играешь как чемпион!",
+    "Умница! Так держать!",
+    "Дима, ты настоящий Fortnite-герой математики!"
+];
+const encouragements = [
+    "Ничего страшного, Дима! Попробуем снова!",
+    "Ты сможешь, я в тебя верю!",
+    "Каждая ошибка делает тебя сильнее!",
+    "Давай, у тебя получится!"
+];
+
+function newQuestion() {
+    let maxNumber = level * 3;
+    a = Math.floor(Math.random() * maxNumber) + 1;
+    b = Math.floor(Math.random() * maxNumber) + 1;
+    document.getElementById('question').textContent = `${a} × ${b} = ?`;
+    document.getElementById('answer').value = '';
+    document.getElementById('feedback').textContent = '';
+}
+
+function checkAnswer() {
+    let ans = parseInt(document.getElementById('answer').value);
+    if (ans === a * b) {
+        score++;
+        document.getElementById('feedback').textContent = praises[Math.floor(Math.random() * praises.length)];
+        document.getElementById('feedback').className = 'correct';
+        document.getElementById('sound-correct').play();
+    } else {
+        score = Math.max(score - 1, 0);
+        document.getElementById('feedback').textContent = encouragements[Math.floor(Math.random() * encouragements.length)];
+        document.getElementById('feedback').className = 'wrong';
+        document.getElementById('sound-wrong').play();
+    }
+    document.getElementById('score').textContent = `Очки: ${score}`;
+    if (score % 5 === 0 && score > 0) {
+        level++;
+        timeLeft += 10;
+        document.getElementById('levelNum').textContent = level;
+    }
+    newQuestion();
+}
+
+function showReward() {
+    let medalImg = "";
+    if (score >= 15) {
+        medalImg = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Gold_medal_icon.svg/1024px-Gold_medal_icon.svg.png";
+    } else if (score >= 8) {
+        medalImg = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Silver_medal_icon.svg/1024px-Silver_medal_icon.svg.png";
+    } else {
+        medalImg = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Bronze_medal_icon.svg/1024px-Bronze_medal_icon.svg.png";
+    }
+    let fortniteImg = "https://wallpapercave.com/wp/wp6119826.jpg";
+    document.getElementById('reward').innerHTML = `
+        <h2>🏆 Молодец, Дима!</h2>
+        <p>Ты получил медаль за свои успехи!</p>
+        <img src="${medalImg}" alt="Медаль">
+        <br><br>
+        <img src="${fortniteImg}" alt="Fortnite">
+    `;
+}
+
+function startTimer() {
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = `⏳ Время: ${timeLeft} сек`;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            document.getElementById('question').textContent = '⏱ Время вышло!';
+            document.getElementById('feedback').textContent = `Дима, ты набрал ${score} очков!`;
+            document.querySelector('button').disabled = true;
+            showReward();
+        }
+    }, 1000);
+}
+
+newQuestion();
+startTimer();
+</script>
+
+</body>
+</html>
